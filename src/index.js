@@ -13,6 +13,10 @@ import App from './App';
 
 import { history } from "./_helpers"
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.css'
+
+
 ReactDOM.render(
   <Provider store={store} >
     <Router history={history} >
