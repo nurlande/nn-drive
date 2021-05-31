@@ -1,30 +1,20 @@
 import React from 'react'
 import Breadcrumb from 'react-bootstrap/Breadcrumb'
+import { useSelector } from 'react-redux';
 import "./Core.css"
 
-class Navigation extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            naviHistory: []
-        }
-    }
-    componentDidMount () {
-        
-        this.setState({
-            naviHistory: this.props.naviHistory 
-        })
-    }
+function Navigation(props) {
 
-    render() {
-        return (
-            <div>
-                <Breadcrumb>
-                    {this.state.naviHistory.map((nav, i) => <Breadcrumb.Item key={i} href={nav.link}>{nav.label}</Breadcrumb.Item>)}
-                </Breadcrumb>
-            </div>
-        )
-    }
+    let files = useSelector(state => state.files.data)
+    console.log(files)
+
+    return (
+        <div>
+            <Breadcrumb>
+                {files && files.navigation.map((nav, i) => <Breadcrumb.Item key={i}>{nav.name}</Breadcrumb.Item>)}
+            </Breadcrumb>
+        </div>
+    )
 }
 
 export default Navigation;

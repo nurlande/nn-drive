@@ -19,6 +19,16 @@ export function AuthReducer (state = initialState, action) {
                 userAuthState : userConstants.LOGIN_FAILURE,
                 msg : action.msg
             }
+        case userConstants.LOGOUT : 
+            return {
+                userAuthState : userConstants.LOGOUT,
+                msg : action.msg
+            }
+        case userConstants.REGISTER : 
+            return {
+                userAuthState : userConstants.REGISTER,
+                msg : action.msg
+            }
         default: { 
             return state;
         }

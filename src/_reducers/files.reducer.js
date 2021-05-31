@@ -17,29 +17,28 @@ export function FilesReducer (state = initialState, action) {
             }
         case filesConstants.FETCH_FILES_FAILURE : 
             return {
-                fetchFilesState : filesConstants.FETCH_FILES_FAILURE,
-                data: state.data
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_FAILURE
             }
         case filesConstants.DELETE : 
             return {
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
-                data: [...state.data].filter(item => item.id !== action.id)
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
             }
         case filesConstants.DOWNLOAD : 
             return {
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
-                data: state.data
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
             }
         case filesConstants.RENAME :
-            state.data[state.data.findIndex(item => item.id === action.id)].fileName = action.newName; 
             return {
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
-                data: state.data
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
             }
         case filesConstants.UPLOAD : 
             return {
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
-                data: [action.file]
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
             }
         default: { 
             return state;

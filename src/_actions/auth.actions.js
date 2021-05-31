@@ -46,3 +46,19 @@ export const logout = () => dispatch => {
     })
 
 }
+
+export const register = (registerData) => dispatch => {
+    console.log(registerData);
+
+    fetch('http://localhost:8082/register/', {
+        method: 'post',
+        body: JSON.stringify({
+            "username": registerData.username, "password": registerData.password, email: registerData.email
+        }),
+        headers: {'Content-Type' : 'application/json'},
+    }).then(data=> {
+        dispatch({type: userConstants.REGISTER});
+        history.push("/login")
+    })
+
+}

@@ -8,7 +8,7 @@ import { history } from '../_helpers'
 
 import { connect } from "react-redux";
 
-import {searchByName} from "../_actions";
+import {logout, searchByName} from "../_actions";
 
 function Header(props) {
 
@@ -24,13 +24,16 @@ function Header(props) {
         <Navbar bg="light" variant="light">
             <Navbar.Brand href="/">Drive</Navbar.Brand>
             <Nav className="mr-auto">
-                {/* <Nav.Link href="#home">Home</Nav.Link>
-                <Nav.Link href="#features">Admin</Nav.Link> */}
+                {/* <Nav.Link href="#home">Home</Nav.Link> */}
+                {/* <Nav.Link href="/admin">Upload File</Nav.Link> */}
             </Nav>
             <Form inline onSubmit={submitSearch}>
                 <FormControl type="text" placeholder="Search" className="mr-sm-2" value={key} onChange={handleChange}/>
                 <Button variant="outline-info" type="submit">Search</Button>
             </Form>
+            <Nav className="ml-auto">
+                <Nav.Link onClick={props.logout}>Logout</Nav.Link>
+            </Nav>
         </Navbar>
     )
 }
@@ -41,7 +44,8 @@ const mapStateToProps = (state) => {
 }
 const mapDispatchToProps = (dispatch) => {
     return {
-        searchByName: (searchKey) => dispatch(searchByName(searchKey))
+        searchByName: (searchKey) => dispatch(searchByName(searchKey)),
+        logout: () => dispatch(logout())
     };
 }
 
