@@ -23,8 +23,7 @@ class FileList extends React.Component {
             selectedFileName: undefined,
             selectedFileId: undefined,
             showChecks: false,
-            selectedIds: [],
-            fileUploadBlock: false
+            selectedIds: []
         }
     }
 
@@ -51,7 +50,6 @@ class FileList extends React.Component {
             selectedFileName: ""
         })
     }
-
     delete = (id) => {
         this.setState({
             modalShow: true,
@@ -67,17 +65,33 @@ class FileList extends React.Component {
             selectedFileId: file.id
         })
     }
-    download = (id) => {
-        this.props.downloadItem(id);
+    details = (file) => {
+        this.setState({
+            modalShow: true,
+            modalFor: "details",
+            selectedFileId: file.id,
+            selectedFileName: file.name
+        })
+    }
+    download = (file) => {
+        if(file.type === "FILE") {
+            this.props.downloadItem(file);
+        } else {
+            console.log("it's folder")
+        }
     }
 
+    // modal closer
     handleCloseModal = () => {
         this.setState({modalShow: false, uploadModalShow: false})
     }
+
+    //input handler
     handleFileNameChange = (event) => {
         this.setState({selectedFileName: event.target.value})
     }
 
+    //modal submitter
     modalSubmit = () => {
         switch(this.state.modalFor) {
             case "createFolder":
@@ -85,8 +99,7 @@ class FileList extends React.Component {
             case "rename" :
                 return this.renameSubmit();
             case "delete":
-                this.setState({modalShow: false})
-                return this.props.deleteItem(this.state.selectedFileId);
+                return this.submitDelete();
             case "move":
                 return console.log("move");
             case "share":
@@ -95,17 +108,20 @@ class FileList extends React.Component {
                 return;
         }
     }
-
+    submitDelete = () => {
+        this.props.deleteItem(this.state.selectedFileId)
+        this.props.getAll(this.props.folderId);
+    }
     createFolderSubmit = () => {
         this.props.createFolderAction(this.state.selectedFileName, this.props.fileId);
-        this.setState({modalShow: false})
+        this.props.getAll(this.props.folderId);
     }
-    
     renameSubmit = () => {
         this.props.renameItem(this.state.selectedFileId, this.state.selectedFileName);
-        this.setState({modalShow: false})
+        this.props.getAll(this.props.folderId);
     }
 
+    // serveIn folder
     openFolder = (folderId) => {
         history.push("/folder/" + folderId);
         this.props.getAll(folderId);
@@ -115,17 +131,18 @@ class FileList extends React.Component {
         })
     }
 
-
+    // checkbox to collect multiple files
     showCheckboxes = () => {
         this.setState({showChecks: !this.state.showChecks})
     }
-
     handleCheck = (event) => {
         let id = event.target.name;
         let checked = event.target.checked;
         this.setState({selectedIds: checked ? [...this.state.selectedIds].concat(id) : [...this.state.selectedIds].filter(i => i !== id)});
     }
 
+
+    // advanced actions
     moveFiles = () => {
         this.setState({
             modalShow: true,
@@ -140,11 +157,13 @@ class FileList extends React.Component {
     }
 
 
-    // returned component
+    // Presentational part of component
     render() {
         return (
             <div>
+                {
                 <Button variant="outline-primary" size="sm" onClick={this.showCheckboxes} className="mr-1">Select</Button>
+                }
                 {/* <Link to="/admin"> */}
                     <Button variant="outline-primary" size="sm" className="mr-1" onClick={() => this.setState({uploadModalShow: true})}>
                         Show Upload File
@@ -170,6 +189,7 @@ class FileList extends React.Component {
                         download={this.download}
                         openFolder={() => this.openFolder(f.id)}
                         showChecks={this.state.showChecks}
+                        details={this.details}
                         handleCheck={this.handleCheck}/>) : <Alert variant="warning">Something went wrong...</Alert>
                     }
                     <CommonModal show={this.state.modalShow} 

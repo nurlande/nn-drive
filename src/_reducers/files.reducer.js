@@ -20,25 +20,60 @@ export function FilesReducer (state = initialState, action) {
                 ...state,
                 fetchFilesState : filesConstants.FETCH_FILES_FAILURE
             }
-        case filesConstants.DELETE : 
+        case "CREATE_FOLDER_SUCCESS":
             return {
                 ...state,
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
+                createFolder: "success"
             }
-        case filesConstants.DOWNLOAD : 
+        case "CREATE_FOLDER_ERROR":
             return {
                 ...state,
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
+                createFolder: "error"
             }
-        case filesConstants.RENAME :
+        case "RENAME_SUCCESS":
             return {
                 ...state,
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
+                renameFile: "success"
             }
-        case filesConstants.UPLOAD : 
+        case "RENAME_ERROR":
             return {
                 ...state,
-                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS
+                renameFile: "error"
+            }
+        case "UPLOAD_SUCCESS":
+            return {
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
+                uploadFile: "success"
+            }
+        case "UPLOAD_ERROR":
+            return {
+                ...state,
+                uploadFile: "error"
+            }
+        case "DELETE_SUCCESS":
+            return {
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
+                deleteFile: "success"
+            }
+        case "DELETE_ERROR":
+            return {
+                ...state,
+                deleteFile: "error"
+            }
+        case "DOWNLOAD_SUCCESS":
+            return {
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
+                downloadFile: "success"
+            }
+        case "DOWNLOAD_ERROR":
+            return {
+                ...state,
+                downloadFile: "error"
             }
         default: { 
             return state;
