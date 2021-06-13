@@ -23,7 +23,8 @@ class FileList extends React.Component {
             selectedFileName: undefined,
             selectedFileId: undefined,
             showChecks: false,
-            selectedIds: []
+            selectedIds: [],
+            fileDetails: null
         }
     }
 
@@ -72,6 +73,13 @@ class FileList extends React.Component {
             selectedFileId: file.id,
             selectedFileName: file.name
         })
+        let user = JSON.parse(localStorage.getItem("user"));
+          fetch("http://localhost:8082/file/details/" + file.id, {headers: new Headers({Authorization: "Bearer " + user.token})})
+          .then(res => res.json().then(data => {
+              this.setState({
+                  fileDetails: data
+              })
+          })).catch(err => console.log(err))
     }
     download = (file) => {
         if(file.type === "FILE") {
@@ -198,7 +206,8 @@ class FileList extends React.Component {
                             modalSubmit={this.modalSubmit}
                             handleChange={this.handleFileNameChange}
                             files={this.props.files.data}
-                            modalFor={this.state.modalFor}/>
+                            modalFor={this.state.modalFor}
+                            fileDetails={this.state.fileDetails}/>
                 </ListGroup>
             </div>
         )

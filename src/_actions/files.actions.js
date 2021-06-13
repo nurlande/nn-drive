@@ -1,5 +1,4 @@
 import { filesConstants } from "./../_constants"
-import { fetchSearch } from './../_services/fetchServices';
 
 import {xhrCreator} from './../_services/fetchServices';
 
@@ -97,20 +96,7 @@ export const downloadItem = file => dispatch => {
       }
     }
   });
-  
-  // DOWNLOAD IS NOT WORKING FOR NOW
-  
-  // fetchDownloadFile()
-  // .then((resp) => {
-    //   const url = window.URL.createObjectURL(new Blob([resp]));
-    //   const link = document.createElement("a");
-    //   link.href = url;
-    //   link.setAttribute('download', "download.txt");
-    //   document.body.appendChild(link);
-    //   link.click();
-    //   dispatch({type: filesConstants.DOWNLOAD, id: id});
-    // });
-  }
+}
   
   export const uploadItem = (files, folder) => dispatch => {
     dispatch({type : filesConstants.FETCH_FILES_PENDING});
@@ -162,45 +148,71 @@ export const downloadItem = file => dispatch => {
     });
   } 
   
+  // /file/search/{namePart} global search by name +++done+++
   export const searchByName = (searchKey) => dispatch => {
   
     dispatch({ type : filesConstants.FETCH_FILES_PENDING });
-  
-    fetchSearch(searchKey)
-    .then(res => dispatch({ type : filesConstants.FETCH_FILES_SUCCESS, res: res}))
-    .catch(err=>dispatch({type: filesConstants.FETCH_FILES_FAILURE}));
+    var data = null;
+    let xhr = xhrCreator("http://localhost:8082/file/search/" + searchKey, "get");
+    xhr.send(data);
+    
+    xhr.addEventListener("readystatechange", function () {  
+      if (this.readyState === 4) {
+        let resp = JSON.parse(this.responseText);
+        if(this.status === 200) {
+          let driveFormat = {navigation: [{name: "search", id: 0}, {name: searchKey, id: 1}], content: resp}
+          dispatch({type: filesConstants.FETCH_FILES_SUCCESS, res: driveFormat})
+        } else {
+          dispatch({type: filesConstants.FETCH_FILES_FAILURE})
+        }
+        console.log(resp)
+      }
+    });
   }
  
-  // /file/search/{namePart} global search by name
 
-  // /file/navigation/{fileId} configure navigation for file
+  // /file/navigation/{fileId} configure navigation for file why?
   
-  
-  
-  
-  
-  // last stage
 
 export const shareWith = (fileId, userList) =>  dispatch => {
 // usernames and fileIds
 // unshare
 // share/users list of users shared this file
 // /user/search/{nameChunk}
+
+///// !!!!!!!!!!!!!!! LAST STAGE
 }
 
 
-export const moveFile = (fileId, newParentId, parentSrcId) => dispatch=> {
-  // srcId destId parentIDs
-}
+export const moveFile = (fileIds, destId, srcId) => dispatch=> {
+  // srcId destId fileIds
+  // /files/move  depends on FolderTree
 
+}
 
 // file details
+export const getDetails = (fileId) => dispatch => {
+  // /file/details/{fileId} get we don't need to call it here
+  
+}
+
 
 // buildFileSystemTree ????? used for file move
+export const buildFileSystemTree = () => dispatch => {
+  // /folder/tree get we dont need to call this in redux
+}
 
 // serveInFolder ??? показать в папке
+export const serveInFolder = () => dispatch => {
+  // /folder/serveIn/{fileId} get not tested Yet
+}
 
-// download file(S)  needs to be added for service
+// download file(S)  needs to be added for service what??? we need to remember and discover this
+
+
+
+
+
 
 
 // 1)Download 2) Move file 3) Search and Nav 4)Share

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -7,18 +7,22 @@ import {useSelector} from 'react-redux'
 
 export default function CommonModal(props) {
 
+    const [folderTree, setFolderTree] = useState({});
     const createFolder = useSelector(state => state.files.createFolder)
     const renameFile = useSelector(state => state.files.renameFile)
     const deleteFile = useSelector(state => state.files.deleteFile)
+    // needs to download folders from back and make availible for select folder to move file
 
     useEffect(() => {
-      if(props.modalFor === "details") {
-        console.log("modal for details");
-        
-      }
-      // needs to download folders from back and make availible for select folder to move file
-    })
-
+      let user = JSON.parse(localStorage.getItem("user"));
+      fetch("http://localhost:8082/folder/tree", {headers: new Headers({Authorization: "Bearer " + user.token})})
+      .then(res => res.json().then(data => {
+        console.log(data);
+        setFolderTree(data);
+      })).catch(err => console.log(err));
+      // needs to write recursive function to place tree of folders
+    }, [])
+    
     const defineBody = () => {
         switch (props.modalFor) {
             case "createFolder":
@@ -67,16 +71,22 @@ export default function CommonModal(props) {
                       }
                     </div> 
                   } 
-                  <p>Are you sure to delete this file?</p>;
+                  <p>Are you sure to delete this file?</p> <b>{props.fileName && props.fileName}</b>
                   </div>
             case "move":
                 return <ListGroup>
-                    {props.folders && props.folders.content.filter((a,b) => a.type !== "FILE").map((f,i) => 
-                        <ListGroup.Item key={i}>
-                            <i className="fa fa-plus mr-2"></i>
-                            {f.fileName}
-                        </ListGroup.Item>
-                    )}
+                  <ListGroup.Item>
+                    <i className="fa fa-plus mr-2"></i>
+                    {folderTree.name}
+                    <ListGroup>
+                      {folderTree.subnodes.map((f,i) => 
+                          <ListGroup.Item key={i}>
+                              <i className="fa fa-plus mr-2"></i>
+                              {f.name}
+                          </ListGroup.Item>
+                      )}
+                    </ListGroup>
+                  </ListGroup.Item>
                 </ListGroup>;
             case "share":
                 return <Form>
@@ -87,7 +97,21 @@ export default function CommonModal(props) {
             </Form>;
             case "details":
               return <div>
-                <h3>{props.fileName && props.fileName}</h3>
+                {props.fileDetails &&
+                <div>
+                  <h3 className="text-center">File Details</h3>
+                  <table  className="table">
+                    <tbody>
+                      <tr><td><b>Name</b></td><td>{props.fileDetails.name}</td></tr>
+                      <tr><td><b>Size</b></td><td>{props.fileDetails.size}</td></tr>
+                      <tr><td><b>Extension</b></td><td>{props.fileDetails.ext}</td></tr>
+                      <tr><td><b>Owner</b></td><td>{props.fileDetails.owner.username}</td></tr>
+                      <tr><td><b>Created</b></td><td>{props.fileDetails.createdAt}</td></tr>
+                      <tr><td><b>Updated</b></td><td>{props.fileDetails.updatedAt}</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                }
               </div>;
             default:
                 return <h1>Modal</h1>;
@@ -96,9 +120,9 @@ export default function CommonModal(props) {
     return (
       <>
         <Modal show={props.show} onHide={() => props.handleClose()}>
-          <Modal.Header closeButton>
+          {/* <Modal.Header closeButton>
             <Modal.Title></Modal.Title>
-          </Modal.Header>
+          </Modal.Header> */}
           <Modal.Body>
             {defineBody()}
           </Modal.Body>

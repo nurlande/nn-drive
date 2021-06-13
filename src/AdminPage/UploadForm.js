@@ -9,6 +9,8 @@ import { filesConstants } from "../_constants/files.constants";
 import {xhrCreator} from './../_services/fetchServices'
 import { Alert } from 'react-bootstrap';
 
+// import axios from "axios";
+
 class UploadForm extends React.Component {
     constructor(props) {
         super(props);
@@ -32,9 +34,9 @@ class UploadForm extends React.Component {
     //             }),
     //         credentials: 'include', // include, *same-origin, omit
     // })
-    // .then(res => console.log(res)).catch(err => console.log(err));
-    }
+}
 
+// .then(res => console.log(res)).catch(err => console.log(err));
 
 
     handleSubmit = (event) => {
@@ -75,6 +77,28 @@ class UploadForm extends React.Component {
         });
 
     }
+    // uploadFile = () => {
+    //     let user = JSON.parse(localStorage.getItem("user"));
+    //     let folderId = this.props.folderId || user.username;
+    //     let url = "http://localhost:8082/folder/"+folderId + "/upload";
+
+    //     let formD = new FormData();
+    //     [...this.state.file].forEach(file => formD.append("files", file));
+
+    //     axios({
+    //         url: url,
+    //         method: "POST",
+    //         headers: new Headers({"Authorization" : "Bearer " + user.token}),
+    //         data: formD,
+    //     }).then(res => {
+    //             console.log(res);
+    //             if(res.ok) {
+    //                 this.setState({uploadResponse: "success"})
+    //             } else {
+    //                 this.setState({uploadResponse: "error"})
+    //             }
+    //         })
+    // }
 
     render() {
         return (
