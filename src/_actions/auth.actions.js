@@ -41,10 +41,10 @@ export const logout = () => dispatch => {
         headers: {'Content-Type' : 'application/json'},
     }).then(data=> {
         console.log(data);
-        localStorage.removeItem("user");
         dispatch({ type : userConstants.LOGOUT });
     })
-
+    localStorage.removeItem("user");
+    history.push("/home")
 }
 
 export const register = (registerData) => dispatch => {

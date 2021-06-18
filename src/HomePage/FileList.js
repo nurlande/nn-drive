@@ -121,7 +121,7 @@ class FileList extends React.Component {
         this.props.getAll(this.props.folderId);
     }
     createFolderSubmit = () => {
-        this.props.createFolderAction(this.state.selectedFileName, this.props.fileId);
+        this.props.createFolderAction(this.state.selectedFileName, this.props.folderId);
         this.props.getAll(this.props.folderId);
     }
     renameSubmit = () => {

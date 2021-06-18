@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
+// import Button from 'react-bootstrap/Button'
 import FormControl from 'react-bootstrap/FormControl'
 import { history } from '../_helpers'
 
@@ -29,7 +29,7 @@ function Header(props) {
             </Nav>
             <Form inline onSubmit={submitSearch}>
                 <FormControl type="text" placeholder="Search" className="mr-sm-2" value={key} onChange={handleChange}/>
-                <Button variant="outline-info" type="submit">Search</Button>
+                {/* <Button variant="outline-info" type="submit">Search</Button> */}
             </Form>
             <Nav className="ml-auto">
                 <Nav.Link onClick={props.logout}>Logout</Nav.Link>
