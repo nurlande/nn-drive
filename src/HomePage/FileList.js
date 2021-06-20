@@ -212,7 +212,7 @@ class FileList extends React.Component {
                 {this.state.selectedIds.length > 0 &&
                     <>
                         <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.downloadZip}>Download</Button>
-                        <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.shareFiles}>Share</Button>
+                        <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.moveFiles}>Move</Button>
                         <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.deleteFiles}>Delete</Button>
                     </>
                 }

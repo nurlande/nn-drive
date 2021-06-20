@@ -110,9 +110,9 @@ export default function CommonModal(props) {
                           </div>
                       )}
                     </div>
-                    <div>
+                    <div className="text-right">
                       <Button variant="primary" onClick={submitMove}>
-                        Close
+                        Move
                       </Button>
                     </div>
                   </div>;
