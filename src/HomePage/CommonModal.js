@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { Alert, ListGroup } from 'react-bootstrap';
+import { Alert } from 'react-bootstrap';
 import {useSelector} from 'react-redux'
 
 export default function CommonModal(props) {
 
+    
     const [folderTree, setFolderTree] = useState({});
     const createFolder = useSelector(state => state.files.createFolder)
     const renameFile = useSelector(state => state.files.renameFile)
     const deleteFile = useSelector(state => state.files.deleteFile)
-    // needs to download folders from back and make availible for select folder to move file
+
+    const [selectedFolder, setSelectedFolder] = useState("");
 
     useEffect(() => {
       let user = JSON.parse(localStorage.getItem("user"));
@@ -20,8 +22,11 @@ export default function CommonModal(props) {
         console.log(data);
         setFolderTree(data);
       })).catch(err => console.log(err));
-      // needs to write recursive function to place tree of folders
     }, [])
+
+    const submitMove = () => {
+      props.moveFile(selectedFolder)
+    }
     
     const defineBody = () => {
         switch (props.modalFor) {
@@ -74,20 +79,43 @@ export default function CommonModal(props) {
                   <p>Are you sure to delete this file?</p> <b>{props.fileName && props.fileName}</b>
                   </div>
             case "move":
-                return <ListGroup>
-                  <ListGroup.Item>
-                    <i className="fa fa-plus mr-2"></i>
-                    {folderTree.name}
-                    <ListGroup>
-                      {folderTree.subnodes.map((f,i) => 
-                          <ListGroup.Item key={i}>
-                              <i className="fa fa-plus mr-2"></i>
-                              {f.name}
-                          </ListGroup.Item>
+                return <div>
+                  <h3>Select Folder to move</h3>
+                    <h6 className="d-flex">
+                      <Form.Check checked={selectedFolder === folderTree.id} onChange={() => setSelectedFolder(folderTree.id)}/>{folderTree.name}</h6>
+                    <div className="ml-3">
+                    {folderTree.subnodes.map((f,i) => 
+                          <div key={i}>
+                              <h6 className="d-flex"><Form.Check checked={selectedFolder === f.id} onChange={()=> setSelectedFolder(f.id)}/>{f.name}</h6>
+                              <div className="ml-3">
+                                  {f.subnodes.map((ff,i) => 
+                                    <div key={i}>
+                                      <h6 className="d-flex"><Form.Check checked={selectedFolder === ff.id} onChange={()=> setSelectedFolder(ff.id)}/>{ff.name}</h6>
+                                      <div className="ml-3">
+                                        {ff.subnodes.map((fff,i) => 
+                                          <div key={i}>
+                                            <div className="ml-3">
+                                              <h6 className="d-flex"><Form.Check checked={selectedFolder === fff.id} onChange={()=> setSelectedFolder(fff.id)}/>{fff.name}</h6>
+                                              <div className="ml-3">
+                                                {fff.subnodes.map((ffff,i) => 
+                                                  <div key={i}>
+                                                    <h6 className="d-flex"><Form.Check checked={selectedFolder === ffff.id} onChange={()=> setSelectedFolder(ffff.id)}/>{ffff.name}</h6>
+                                                  </div>)}
+                                              </div>
+                                            </div>
+                                          </div>)}
+                                      </div>
+                                    </div>)}
+                              </div>
+                          </div>
                       )}
-                    </ListGroup>
-                  </ListGroup.Item>
-                </ListGroup>;
+                    </div>
+                    <div>
+                      <Button variant="primary" onClick={submitMove}>
+                        Close
+                      </Button>
+                    </div>
+                  </div>;
             case "share":
                 return <Form>
                 <Form.Group controlId="exampleForm.ControlInput1">
@@ -130,7 +158,7 @@ export default function CommonModal(props) {
             <Button variant="secondary" onClick={() => props.handleClose()}>
               Close
             </Button>
-            { props.modalFor !== "details" && 
+            { (props.modalFor !== "details" && props.modalFor !== "move") && 
                 <Button variant="primary" onClick={() => props.modalSubmit()}>
                   {props.modalFor=== "delete" ? "Confirm Delete" : "Submit"}
               </Button>

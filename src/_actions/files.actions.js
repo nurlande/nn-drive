@@ -1,3 +1,4 @@
+import { history } from "../_helpers";
 import { filesConstants } from "./../_constants"
 
 import {xhrCreator} from './../_services/fetchServices';
@@ -31,8 +32,9 @@ export const deleteItem = id => dispatch => {
 
   dispatch({ type : filesConstants.FETCH_FILES_PENDING });
   
+  
   var data = JSON.stringify({
-    "fileIds": [id]
+    "fileIds": (typeof id === "string") ? [id] : [...id]
   });
   console.log(data);
   let xhr = xhrCreator("http://localhost:8082/files/delete", "DELETE", );
@@ -47,7 +49,6 @@ export const deleteItem = id => dispatch => {
       } else {
         dispatch({type : "DELETE_ERROR"})
       }
-      getAllAsync();
     }
   });
 }
@@ -69,7 +70,6 @@ export const renameItem = (id, newName) => dispatch => {
       } else {
         dispatch({type: "RENAME_ERROR"})
       }
-      getAllAsync();
     }
   });
 }
@@ -97,32 +97,57 @@ export const downloadItem = file => dispatch => {
     }
   });
 }
+
+export const downloadMulti = ids => dispatch => {
+  
+  dispatch({ type : filesConstants.FETCH_FILES_PENDING });
+  var data = {
+    "fileIds": ids
+  };
+  console.log(data);
+  let xhr = xhrCreator("http://localhost:8082/files/download/", "get", );
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.send(data);
+  
+  xhr.addEventListener("readystatechange", function () {  
+    if (this.readyState === 4) {
+      if(this.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([this.responseText]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute('download', "downloads");
+        document.body.appendChild(link);
+        link.click();
+        dispatch({type: "DOWNLOAD_SUCCESS"})
+      } else {
+        dispatch({type: "DOWNLOAD_FAILED"})
+      }
+    }
+  });
+}
   
   export const uploadItem = (files, folder) => dispatch => {
-    dispatch({type : filesConstants.FETCH_FILES_PENDING});
-    
     let user = JSON.parse(localStorage.getItem("user"));
-    let folderId = folder || user.username;
-    
-    
-    let url = "http://localhost:8082/folder/"+folderId + "/upload";
-    
-    let xhr = xhrCreator(url, "post");
-    let formD = new FormData();
-    [...files].forEach(file => formD.append("files", file));
-    
-    xhr.send(formD);
-    xhr.addEventListener("readystatechange", function () {  
-      if (this.readyState === 4) {
-        let resp = JSON.parse(this.responseText)
-        console.log(resp);
-        if(this.status === 200) {
-          dispatch({ type : "UPLOAD_SUCCESS"})
-        } else {
-          dispatch({ type : "UPlOAD_ERROR"})
-        }
-      }
-    });
+        let folderId = folder || user.username;
+        let url = "http://localhost:8082/folder/"+folderId + "/upload";
+
+        let xhr = xhrCreator(url, "post");
+        let formD = new FormData();
+        files.forEach(file => formD.append("files", file));
+        
+        xhr.send(formD);
+        xhr.addEventListener("readystatechange", function () {  
+            if (this.readyState === 4) {
+                let resp = JSON.parse(this.responseText)
+                console.log(resp);
+                if(this.status === 200) {
+                    dispatch({type: "UPLOAD_SUCCESS"})
+                } else {
+                    dispatch({type: "UPLOAD_ERROR"})
+                }
+            }
+        });
   }
   
   export const createFolder = (folderName, parentId) => dispatch => {
@@ -184,9 +209,33 @@ export const shareWith = (fileId, userList) =>  dispatch => {
 }
 
 
-export const moveFile = (fileIds, destId, srcId) => dispatch=> {
+export const moveFile = (destId, srcId, fileIds) => dispatch=> {
   // srcId destId fileIds
   // /files/move  depends on FolderTree
+    console.log(destId, srcId, fileIds);
+    let user = JSON.parse(localStorage.getItem("user"));
+    
+    let folderId = srcId || user.username;
+    var data = JSON.stringify({
+      "destId": destId,
+      "srcId": folderId,
+      "fileIds": [...fileIds]
+    });
+    let xhr = xhrCreator("http://localhost:8082/files/move", "post");
+    xhr.setRequestHeader("Content-Type", "application/json;odata=verbose");
+    xhr.send(data);
+    
+    xhr.addEventListener("readystatechange", function () {  
+      if (this.readyState === 4) {
+        let resp = JSON.parse(this.responseText);
+        if(this.status === 200) {
+          dispatch({type: "MOVE_FOLDER_SUCCESS"})
+        } else {
+          dispatch({type: "MOVE_FOLDER_ERROR"})
+        }
+        console.log(resp)
+      }
+    });
 
 }
 
@@ -202,12 +251,29 @@ export const buildFileSystemTree = () => dispatch => {
   // /folder/tree get we dont need to call this in redux
 }
 
-// serveInFolder ??? показать в папке
-export const serveInFolder = () => dispatch => {
-  // /folder/serveIn/{fileId} get not tested Yet
+export const serveInFolder = (id) => dispatch => {
+  // /folder/serveIn/{fileId} get
+  dispatch({ type : filesConstants.FETCH_FILES_PENDING });
+
+  var data = null;
+  let xhr = xhrCreator("http://localhost:8082/folder/serveIn/" +id, "get", );
+  xhr.send(data);
+
+  xhr.addEventListener("readystatechange", function () {  
+      if (this.readyState === 4) {
+          let resp = JSON.parse(this.responseText);
+          if(this.status === 200) {
+            dispatch({ type : filesConstants.FETCH_FILES_SUCCESS, res: resp})
+            history.push("/folder/" + resp.navigation[resp.navigation.length - 1].id)
+          } else {
+            dispatch({type : filesConstants.FETCH_FILES_FAILURE, res: resp.status})
+          }
+      }
+  });
+
 }
 
-// download file(S)  needs to be added for service what??? we need to remember and discover this
+// download file(S)  needs to be added for service 
 
 
 

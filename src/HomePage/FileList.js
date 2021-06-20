@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button'
 
 import { connect } from "react-redux";
 
-import { deleteItem, downloadItem, getAllAsync, searchByName, renameItem, createFolder } from "../_actions";
+import { deleteItem, downloadItem, getAllAsync, searchByName, renameItem, createFolder, serveInFolder, moveFile, downloadMulti } from "../_actions";
 import { filesConstants } from "../_constants/files.constants";
 import {history} from './../_helpers';
 import CommonModal from './CommonModal';
@@ -36,10 +36,19 @@ class FileList extends React.Component {
         } else {
             this.props.searchByName(this.props.searchKey);
         }
+        console.log("didMount")
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.specificProperty !== this.props.specificProperty) {
+            // Do whatever you want
+            console.log("updated?")
+        }
+    }
     shouldComponentRender = () => {
-        return this.props.files.fetchFilesState === filesConstants.FETCH_FILES_SUCCESS ? true : false; 
+        console.log("should")
+        this.props.getAll(this.props.folderId);
+        return (this.props.files.fetchFilesState === filesConstants.FETCH_FILES_SUCCESS) ? true : false; 
     }
 
     //main actions
@@ -85,8 +94,12 @@ class FileList extends React.Component {
         if(file.type === "FILE") {
             this.props.downloadItem(file);
         } else {
-            console.log("it's folder")
+            this.props.downloadMulti([file.id]);
         }
+    }
+
+    downloadZip = () => {
+        this.props.downloadMulti(this.state.selectedIds)
     }
 
     // modal closer
@@ -108,8 +121,6 @@ class FileList extends React.Component {
                 return this.renameSubmit();
             case "delete":
                 return this.submitDelete();
-            case "move":
-                return console.log("move");
             case "share":
                 return console.log("share");
             default:
@@ -164,6 +175,22 @@ class FileList extends React.Component {
         })
     }
 
+    serveInFolder = (file) => {
+        console.log("serve in ", file);
+        this.props.serveInFolder(file.id)
+    }
+
+    submitMoveFile = (destId) => {
+        console.log("destID", destId);
+        console.log("parentId", this.props.folderId);
+        console.log("selectedFiles", this.state.selectedIds);
+        this.props.moveFile(destId, this.props.folderId, this.state.selectedIds)
+    }
+
+    deleteFiles = () => {
+        this.props.deleteItem(this.state.selectedIds);
+    }
+
 
     // Presentational part of component
     render() {
@@ -172,17 +199,16 @@ class FileList extends React.Component {
                 {
                 <Button variant="outline-primary" size="sm" onClick={this.showCheckboxes} className="mr-1">Select</Button>
                 }
-                {/* <Link to="/admin"> */}
-                    <Button variant="outline-primary" size="sm" className="mr-1" onClick={() => this.setState({uploadModalShow: true})}>
-                        Show Upload File
-                    </Button>
-                {/* </Link> */}
+                <Button variant="outline-primary" size="sm" className="mr-1" onClick={() => this.setState({uploadModalShow: true})}>
+                    Show Upload File
+                </Button>
                 <Button variant="outline-primary" size="sm" onClick={this.createFolder} className="mr-1">Create Folder</Button>
                 
                 {this.state.selectedIds.length > 0 &&
                     <>
-                        <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.moveFiles}>Move</Button>
+                        <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.downloadZip}>Download</Button>
                         <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.shareFiles}>Share</Button>
+                        <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.deleteFiles}>Delete</Button>
                     </>
                 }
                 
@@ -198,7 +224,8 @@ class FileList extends React.Component {
                         openFolder={() => this.openFolder(f.id)}
                         showChecks={this.state.showChecks}
                         details={this.details}
-                        handleCheck={this.handleCheck}/>) : <Alert variant="warning">Something went wrong...</Alert>
+                        handleCheck={this.handleCheck}
+                        serveInFolder={this.serveInFolder}/>) : <Alert variant="warning">Something went wrong...</Alert>
                     }
                     <CommonModal show={this.state.modalShow} 
                             handleClose={this.handleCloseModal} 
@@ -207,7 +234,8 @@ class FileList extends React.Component {
                             handleChange={this.handleFileNameChange}
                             files={this.props.files.data}
                             modalFor={this.state.modalFor}
-                            fileDetails={this.state.fileDetails}/>
+                            fileDetails={this.state.fileDetails}
+                            moveFile={this.submitMoveFile}/>
                 </ListGroup>
             </div>
         )
@@ -230,7 +258,10 @@ const mapDispatchToProps = (dispatch) => {
         deleteItem: (id) => dispatch(deleteItem(id)),
         downloadItem: (id) => dispatch(downloadItem(id)),
         renameItem: (id, newName) => dispatch(renameItem(id, newName)),
-        createFolderAction: (folderName, parentId) => dispatch(createFolder(folderName, parentId))
+        createFolderAction: (folderName, parentId) => dispatch(createFolder(folderName, parentId)),
+        serveInFolder: (id) => dispatch(serveInFolder(id)),
+        moveFile: (destId, parentId, selectedFileIds) => dispatch(moveFile(destId, parentId, selectedFileIds)),
+        downloadMulti: (ids) => dispatch(downloadMulti(ids))
     };
 }
 

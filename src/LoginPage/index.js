@@ -70,7 +70,7 @@ class LoginPage extends Component {
                     <Button variant="outline-primary" type="submit" className="float-right">
                         Login
                     </Button>
-                    <Button variant="outline-secondary" type="button" className="float-right mx-2">
+                    <Button variant="outline-secondary" type="button" className="float-right mx-2" href="/register">
                         Register
                     </Button>
                 </Form>

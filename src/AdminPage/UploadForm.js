@@ -6,7 +6,6 @@ import Modal from 'react-bootstrap/Modal';
 import { connect } from "react-redux";
 import { uploadItem} from "../_actions";
 import { filesConstants } from "../_constants/files.constants";
-import {xhrCreator} from './../_services/fetchServices'
 import { Alert } from 'react-bootstrap';
 
 // import axios from "axios";
@@ -19,25 +18,6 @@ class UploadForm extends React.Component {
             uploadResponse: null
         }
     }
-
-
-    componentDidMount() {
-
-    // fetch('http://localhost:8082/folder/nurlan/content',
-    //     {
-    //         method: "get",
-    //         header: 
-    //             new Headers({
-    //                 "postman-token": "318500c9-3d57-65ad-0648-ba67cfbdc4d5",
-    //                 'cache-control': 'no-cache',
-    //                 'authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudXJsYW4iLCJleHAiOjE2MjE5NjYyMDEsImlhdCI6MTYyMTk0NDYwMX0.7TI9LM_ZE6UO-vg5Nt32Xn8YXAKn83a7zNmjgitl4wg'
-    //             }),
-    //         credentials: 'include', // include, *same-origin, omit
-    // })
-}
-
-// .then(res => console.log(res)).catch(err => console.log(err));
-
 
     handleSubmit = (event) => {
         event.preventDefault();
@@ -54,51 +34,9 @@ class UploadForm extends React.Component {
     }
 
     submitFile = () => {
-        let user = JSON.parse(localStorage.getItem("user"));
-        let folderId = this.props.folderId || user.username;
-        let url = "http://localhost:8082/folder/"+folderId + "/upload";
-
-        let xhr = xhrCreator(url, "post");
-        let formD = new FormData();
-        [...this.state.file].forEach(file => formD.append("files", file));
-        
-        xhr.send(formD);
-        const self = this;
-        xhr.addEventListener("readystatechange", function () {  
-            if (this.readyState === 4) {
-                let resp = JSON.parse(this.responseText)
-                console.log(resp);
-                if(this.status === 200) {
-                    self.setState({uploadResponse: "success"})
-                } else {
-                    self.setState({uploadResponse: "error"})
-                }
-            }
-        });
+        this.props.uploadItem([...this.state.file], this.props.folderId)
 
     }
-    // uploadFile = () => {
-    //     let user = JSON.parse(localStorage.getItem("user"));
-    //     let folderId = this.props.folderId || user.username;
-    //     let url = "http://localhost:8082/folder/"+folderId + "/upload";
-
-    //     let formD = new FormData();
-    //     [...this.state.file].forEach(file => formD.append("files", file));
-
-    //     axios({
-    //         url: url,
-    //         method: "POST",
-    //         headers: new Headers({"Authorization" : "Bearer " + user.token}),
-    //         data: formD,
-    //     }).then(res => {
-    //             console.log(res);
-    //             if(res.ok) {
-    //                 this.setState({uploadResponse: "success"})
-    //             } else {
-    //                 this.setState({uploadResponse: "error"})
-    //             }
-    //         })
-    // }
 
     render() {
         return (
@@ -107,10 +45,10 @@ class UploadForm extends React.Component {
             <Modal.Title>File Upload</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-              {this.state.uploadResponse ?
+              {this.props.files.uploadFile ?
                 <div>
                   {
-                      this.state.uploadResponse === "success" ? 
+                      this.props.files.uploadFile === "success" ? 
                       <Alert variant="success">
                         File(s) uploaded successfully
                       </Alert> : 
