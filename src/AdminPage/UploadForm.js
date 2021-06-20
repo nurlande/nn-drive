@@ -1,63 +1,48 @@
-import React from 'react'
+import React, {useState} from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal';
 
-import { connect } from "react-redux";
+import { useDispatch, useSelector} from "react-redux";
 import { uploadItem} from "../_actions";
-import { filesConstants } from "../_constants/files.constants";
-import { Alert } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 
-// import axios from "axios";
+function UploadForm (props) {
 
-class UploadForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            file: "",
-            uploadResponse: null
-        }
-    }
+    const [file, setFile] = useState("");
 
-    handleSubmit = (event) => {
+    const {folderId} = useParams();
+    console.log(folderId)
+
+    const handleSubmit = (event) => {
         event.preventDefault();
-        this.submitFile();
+        submitFile();
     }
 
-    handleFileChange = (event) => {
-        this.setState({
-            [event.target.name]: event.target.files
-        })
+    const handleFileChange = (event) => {
+        setFile(event.target.files)
     }
-    shouldComponentRender = () => {
-        return this.props.files.fetchFilesState === filesConstants.FETCH_FILES_SUCCESS ? true : false; 
-    }
+    const dispatch = useDispatch();
 
-    submitFile = () => {
-        this.props.uploadItem([...this.state.file], this.props.folderId)
-
+    const submitFile = () => {
+        dispatch(uploadItem([...file], folderId));
     }
 
-    render() {
+    const uploadFile = useSelector(state => state.files.uploadFile)
+
         return (
-        <Modal show={this.props.show} onHide={() => this.props.handleClose()}>
+        <Modal show={props.show} onHide={() => props.handleClose()}>
           <Modal.Header closeButton>
             <Modal.Title>File Upload</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-              {this.props.files.uploadFile ?
-                <div>
-                  {
-                      this.props.files.uploadFile === "success" ? 
-                      window.location.reload() : 
-                      <Alert variant="warning">
-                        Something went wrong... Try again!
-                      </Alert>
-                  }
-                </div> :
-                <Form onSubmit={this.handleSubmit}>
+              {uploadFile === "error" && <div>Something wrong... Try again!</div>}
+              {uploadFile === "success" ?
+                      window.location.reload() 
+                      : 
+                <Form onSubmit={(e) => handleSubmit(e)}>
                     <Form.Group>
-                        <Form.File id="custom-file" label={this.state.file ? this.state.file[0].name : "Choose file"} multiple custom onChange={this.handleFileChange} name="file"/>
+                        <Form.File id="custom-file" label={file ? file[0].name : "Choose file"} multiple custom onChange={e => handleFileChange(e)} name="file"/>
                     </Form.Group>
                     <Button type="submit" variant="outline-success" className="float-right">Upload</Button>
                 </Form>
@@ -65,18 +50,5 @@ class UploadForm extends React.Component {
           </Modal.Body>
         </Modal>
         )
-    }
 }
-const mapStateToProps = (state) => {
-    return {
-        files : state.files
-    };
-}
-
-const mapDispatchToProps = (dispatch) => {
-    return {
-        uploadItem: (file) => dispatch(uploadItem(file))
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps) (UploadForm);
+export default UploadForm;

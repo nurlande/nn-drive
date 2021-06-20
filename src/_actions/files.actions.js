@@ -100,15 +100,13 @@ export const downloadItem = file => dispatch => {
 
 export const downloadMulti = ids => dispatch => {
   
-  dispatch({ type : filesConstants.FETCH_FILES_PENDING });
-  var data = {
-    "fileIds": ids
-  };
-  console.log(data);
-  let xhr = xhrCreator("http://localhost:8082/files/download/", "get", );
-  xhr.setRequestHeader("Content-Type", "application/json");
 
-  xhr.send(data);
+  dispatch({ type : filesConstants.FETCH_FILES_PENDING });
+  var query = ids.join("&fileIds=");
+  console.log(query);
+  let xhr = xhrCreator("http://localhost:8082/files/download?fileIds="+query, "get" );
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.send();
   
   xhr.addEventListener("readystatechange", function () {  
     if (this.readyState === 4) {
@@ -116,7 +114,7 @@ export const downloadMulti = ids => dispatch => {
         const url = window.URL.createObjectURL(new Blob([this.responseText]));
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute('download', "downloads");
+        link.setAttribute('download', "files.zip");
         document.body.appendChild(link);
         link.click();
         dispatch({type: "DOWNLOAD_SUCCESS"})
