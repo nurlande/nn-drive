@@ -2,7 +2,6 @@ import React from 'react';
 import FileItem from './FileItem';
 import ListGroup from 'react-bootstrap/ListGroup'
 import Button from 'react-bootstrap/Button'
-// import {Link} from 'react-router-dom'
 
 import { connect } from "react-redux";
 
@@ -129,15 +128,18 @@ class FileList extends React.Component {
     }
     submitDelete = () => {
         this.props.deleteItem(this.state.selectedFileId)
-        this.props.getAll(this.props.folderId);
+        this.handleCloseModal();
+        window.location.reload()
     }
     createFolderSubmit = () => {
         this.props.createFolderAction(this.state.selectedFileName, this.props.folderId);
-        this.props.getAll(this.props.folderId);
+        this.handleCloseModal();
+        window.location.reload()
     }
     renameSubmit = () => {
         this.props.renameItem(this.state.selectedFileId, this.state.selectedFileName);
-        this.props.getAll(this.props.folderId);
+        this.handleCloseModal();
+        window.location.reload()
     }
 
     // serveIn folder
@@ -184,11 +186,14 @@ class FileList extends React.Component {
         console.log("destID", destId);
         console.log("parentId", this.props.folderId);
         console.log("selectedFiles", this.state.selectedIds);
-        this.props.moveFile(destId, this.props.folderId, this.state.selectedIds)
+        this.props.moveFile(destId, this.props.folderId, this.state.selectedIds);
+        this.handleCloseModal();
+        window.location.reload()
     }
 
     deleteFiles = () => {
         this.props.deleteItem(this.state.selectedIds);
+        window.location.reload()
     }
 
 

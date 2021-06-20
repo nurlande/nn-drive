@@ -49,9 +49,7 @@ class UploadForm extends React.Component {
                 <div>
                   {
                       this.props.files.uploadFile === "success" ? 
-                      <Alert variant="success">
-                        File(s) uploaded successfully
-                      </Alert> : 
+                      window.location.reload() : 
                       <Alert variant="warning">
                         Something went wrong... Try again!
                       </Alert>
@@ -59,7 +57,7 @@ class UploadForm extends React.Component {
                 </div> :
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group>
-                        <Form.File id="custom-file" label="Custom file input" multiple custom onChange={this.handleFileChange} name="file"/>
+                        <Form.File id="custom-file" label={this.state.file ? this.state.file[0].name : "Choose file"} multiple custom onChange={this.handleFileChange} name="file"/>
                     </Form.Group>
                     <Button type="submit" variant="outline-success" className="float-right">Upload</Button>
                 </Form>
