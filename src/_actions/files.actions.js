@@ -197,15 +197,31 @@ export const downloadMulti = ids => dispatch => {
   // /file/navigation/{fileId} configure navigation for file why?
   
 
-export const shareWith = (fileId, userList) =>  dispatch => {
+export const shareWith = (fileIds, userList) =>  dispatch => {
 // usernames and fileIds
 // unshare
-// share/users list of users shared this file
-// /user/search/{nameChunk}
+// share/users list of users shared this file userNames fileIds
 
-///// !!!!!!!!!!!!!!! LAST STAGE
+  var data = JSON.stringify({
+    "userNames": (typeof userList === "string") ? [userList] : [...userList],
+    "fileIds": (typeof fileIds === "string") ? [fileIds] : [...fileIds]
+  });
+  let xhr = xhrCreator("http://localhost:8082/share", "post");
+  xhr.setRequestHeader("Content-Type", "application/json;");
+  xhr.send(data);
+
+  xhr.addEventListener("readystatechange", function () {  
+    if (this.readyState === 4) {
+      let resp = JSON.parse(this.responseText);
+      if(this.status === 200) {
+        dispatch({type: "SHARE_SUCCESS"})
+      } else {
+        dispatch({type: "SHARE_ERROR"})
+      }
+      console.log(resp)
+    }
+  });
 }
-
 
 export const moveFile = (destId, srcId, fileIds) => dispatch=> {
   // srcId destId fileIds
@@ -234,20 +250,13 @@ export const moveFile = (destId, srcId, fileIds) => dispatch=> {
         console.log(resp)
       }
     });
-
 }
 
 // file details
 export const getDetails = (fileId) => dispatch => {
-  // /file/details/{fileId} get we don't need to call it here
-  
+  // /file/details/{fileId} get we don't need to call it here  
 }
 
-
-// buildFileSystemTree ????? used for file move
-export const buildFileSystemTree = () => dispatch => {
-  // /folder/tree get we dont need to call this in redux
-}
 
 export const serveInFolder = (id) => dispatch => {
   // /folder/serveIn/{fileId} get
@@ -270,15 +279,3 @@ export const serveInFolder = (id) => dispatch => {
   });
 
 }
-
-// download file(S)  needs to be added for service 
-
-
-
-
-
-
-
-// 1)Download 2) Move file 3) Search and Nav 4)Share
-
-// User Management Page

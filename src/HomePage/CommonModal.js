@@ -9,6 +9,10 @@ export default function CommonModal(props) {
 
     
     const [folderTree, setFolderTree] = useState({});
+    const [nameChunk, setNameChunk] = useState("");
+    const [userList, setUserList] = useState([])
+    const [selectedUsers, setSelectedUsers] = useState([])
+
     const createFolder = useSelector(state => state.files.createFolder)
     const renameFile = useSelector(state => state.files.renameFile)
     const deleteFile = useSelector(state => state.files.deleteFile)
@@ -22,10 +26,34 @@ export default function CommonModal(props) {
         console.log(data);
         setFolderTree(data);
       })).catch(err => console.log(err));
+      
     }, [])
 
     const submitMove = () => {
       props.moveFile(selectedFolder)
+    }
+    
+    const handleChange = e => {
+      setNameChunk(e.target.value);
+      getUserList(e.target.value);
+    }
+
+    const addToSelectedUsers = (id) => {
+      setSelectedUsers([...selectedUsers, id])
+    }
+
+    const submitShare = () => {
+      props.submitShare(selectedUsers);
+      
+    }
+
+    const getUserList = name => {
+      let user = JSON.parse(localStorage.getItem("user"));
+      fetch("http://localhost:8082/user/search/" + name, {headers: new Headers({Authorization: "Bearer " + user.token})})
+      .then(res => res.json().then(data => {
+        console.log(data);
+        setUserList(data);
+      })).catch(err => console.log(err));
     }
     
     const defineBody = () => {
@@ -120,8 +148,13 @@ export default function CommonModal(props) {
                 return <Form>
                 <Form.Group controlId="exampleForm.ControlInput1">
                     <Form.Label>Select Users</Form.Label>
-                    <Form.Control type="text"/>
+                    <Form.Control type="text" value={nameChunk} onKeyUp={(event) => handleChange(event)} onChange={e => setNameChunk(e.target.value)}/>
                 </Form.Group>
+                {userList.map(u => 
+                  <div>
+                    <h6 className="d-flex"><Form.Check checked={selectedUsers.includes(u.username)} onChange={()=> addToSelectedUsers(u.username)}/>{u.username}</h6>
+                  </div>
+                )}
             </Form>;
             case "details":
               return <div>
@@ -158,7 +191,9 @@ export default function CommonModal(props) {
             <Button variant="secondary" onClick={() => props.handleClose()}>
               Close
             </Button>
-            { (props.modalFor !== "details" && props.modalFor !== "move") && 
+            {props.modalFor==="share" ? 
+            <Button variant="primary" onClick={submitShare}>Submit</Button>
+            : (props.modalFor !== "details" && props.modalFor !== "move") && 
                 <Button variant="primary" onClick={() => props.modalSubmit()}>
                   {props.modalFor=== "delete" ? "Confirm Delete" : "Submit"}
               </Button>

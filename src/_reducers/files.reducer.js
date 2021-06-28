@@ -1,7 +1,9 @@
 import { filesConstants } from "./../_constants"
 
 //Initial state
-const initialState = { }
+const initialState = { 
+    userList: []
+}
 
 export function FilesReducer (state = initialState, action) {
     switch (action.type) {
@@ -74,6 +76,17 @@ export function FilesReducer (state = initialState, action) {
             return {
                 ...state,
                 downloadFile: "error"
+            }
+        case "SHARE_SUCCESS":
+            return {
+                ...state,
+                fetchFilesState : filesConstants.FETCH_FILES_SUCCESS,
+                share: "success"
+            }
+        case "SHARE_ERROR":
+            return {
+                ...state,
+                share: "error"
             }
         default: { 
             return state;

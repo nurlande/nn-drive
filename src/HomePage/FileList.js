@@ -11,6 +11,7 @@ import {history} from './../_helpers';
 import CommonModal from './CommonModal';
 import Alert from 'react-bootstrap/Alert';
 import UploadForm from '../AdminPage/UploadForm';
+import { shareWith } from '../_actions/files.actions';
 
 class FileList extends React.Component {
     constructor(props) {
@@ -196,6 +197,11 @@ class FileList extends React.Component {
         window.location.reload()
     }
 
+    submitShare = (userList) => {
+        this.props.shareWith(this.state.selectedIds, userList);
+        window.location.reload();
+    }
+
 
     // Presentational part of component
     render() {
@@ -213,6 +219,7 @@ class FileList extends React.Component {
                     <>
                         <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.downloadZip}>Download</Button>
                         <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.moveFiles}>Move</Button>
+                        <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.shareFiles}>Share</Button>
                         <Button variant="outline-primary" className="float-right ml-2" size="sm" onClick={this.deleteFiles}>Delete</Button>
                     </>
                 }
@@ -240,7 +247,9 @@ class FileList extends React.Component {
                             files={this.props.files.data}
                             modalFor={this.state.modalFor}
                             fileDetails={this.state.fileDetails}
-                            moveFile={this.submitMoveFile}/>
+                            moveFile={this.submitMoveFile}
+                            submitShare={this.submitShare}
+                            selectedIds={this.state.selectedIds}/>
                 </ListGroup>
             </div>
         )
@@ -266,7 +275,8 @@ const mapDispatchToProps = (dispatch) => {
         createFolderAction: (folderName, parentId) => dispatch(createFolder(folderName, parentId)),
         serveInFolder: (id) => dispatch(serveInFolder(id)),
         moveFile: (destId, parentId, selectedFileIds) => dispatch(moveFile(destId, parentId, selectedFileIds)),
-        downloadMulti: (ids) => dispatch(downloadMulti(ids))
+        downloadMulti: (ids) => dispatch(downloadMulti(ids)),
+        shareWith: (ids, userList) => dispatch(shareWith(ids, userList))
     };
 }
 
